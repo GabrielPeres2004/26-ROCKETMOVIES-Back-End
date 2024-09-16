@@ -5,7 +5,7 @@ const AppError = require("../utils/AppError")
 class NotesControllers {
     async create(request, response) {
         const { title, description, rating, tags } = request.body
-        const { user_id } = request.params
+        const user_id = request.user.id
 
         if (rating > 5) {
             throw new AppError("A nota deve ser no máximo 5.");
@@ -60,7 +60,8 @@ class NotesControllers {
     }
 
     async Index(request, response) {
-        const { user_id, title, tags } = request.query
+        const { title, tags } = request.query
+        const user_id = request.user.id
         let notes
 
         if (tags) {
