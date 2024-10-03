@@ -7,6 +7,10 @@ class NotesControllers {
         const { title, description, rating, tags } = request.body
         const user_id = request.user.id
 
+        if (!rating) {
+            throw new AppError("Por favor insira a nota");
+        }
+
         if (rating > 5) {
             throw new AppError("A nota deve ser no máximo 5.");
         }
@@ -15,26 +19,32 @@ class NotesControllers {
             throw new AppError("A nota deve ser no mínimo 0");
         }
 
-        const [note_id] = await knex("notes").insert({
-            title,
-            description,
-            rating,
-            user_id
-        })
+        try {
 
-        const tagsInsert = tags.map(name => {
-            return {
-                user_id,
-                note_id,
-                name
-            }
-        })
+            const [note_id] = await knex("notes").insert({
+                title,
+                description,
+                rating,
+                user_id
+            })
 
-        await knex("tags").insert(tagsInsert)
+            const tagsInsert = tags.map(name => {
+                return {
+                    user_id,
+                    note_id,
+                    name
+                }
+            })
+
+            await knex("tags").insert(tagsInsert)
 
 
-        return response.json()
+            return response.json()
 
+        } catch {
+            throw new AppError("Não foi possivel cadastrar a nota");
+
+        }
 
     }
 
@@ -45,18 +55,30 @@ class NotesControllers {
         const tags = await knex("tags").where({ note_id: id }).orderBy("name")
 
 
-        return response.json({
-            ...note,
-            tags
-        })
+        try {
+            return response.json({
+                ...note,
+                tags
+            })
+
+        } catch {
+            throw new AppError("Não foi possivel trazer informações da nota");
+        }
+
     }
 
     async delete(request, response) {
         const { id } = request.params
 
-        await knex('notes').where({ id }).delete()
+        try {
+            await knex('notes').where({ id }).delete()
 
-        return response.json()
+            return response.json()
+
+        } catch {
+            throw new AppError("Não foi possivel deletar a nota");
+        }
+
     }
 
     async Index(request, response) {
@@ -64,40 +86,46 @@ class NotesControllers {
         const user_id = request.user.id
         let notes
 
-        if (tags) {
-            const filterTags = tags.split(",").map(tag => tag.trim())
+        try {
+            if (tags) {
+                const filterTags = tags.split(",").map(tag => tag.trim())
 
-            notes = await knex("tags")
-                .select([
-                    "notes.id",
-                    "notes.title",
-                    "notes.user_id"
-                ])
-                .where("notes.user_id", user_id)
-                .whereLike("notes.title", `%${title}%`)
-                .whereIn("name", filterTags)
-                .innerJoin("notes", "notes.id", "tags.note_id")
-                .orderBy("notes.title")
-        }
-        else {
-
-            notes = await knex("notes")
-                .where({ user_id })
-                .whereLike("title", `%${title}%`)
-                .orderBy('title')
-
-        }
-
-        const userTags = await knex("tags").where({ user_id })
-        const userWithTags = notes.map(note => {
-            const noteTags = userTags.filter(tag => tag.note_id === note.id)
-
-            return {
-                ...note,
-                tags: noteTags
+                notes = await knex("tags")
+                    .select([
+                        "notes.id",
+                        "notes.title",
+                        "notes.user_id"
+                    ])
+                    .where("notes.user_id", user_id)
+                    .whereLike("notes.title", `%${title}%`)
+                    .whereIn("name", filterTags)
+                    .innerJoin("notes", "notes.id", "tags.note_id")
+                    .orderBy("notes.title")
             }
-        })
-        response.json(userWithTags)
+            else {
+
+                notes = await knex("notes")
+                    .where({ user_id })
+                    .whereLike("title", `%${title}%`)
+                    .orderBy('title')
+
+            }
+
+            const userTags = await knex("tags").where({ user_id })
+            const userWithTags = notes.map(note => {
+                const noteTags = userTags.filter(tag => tag.note_id === note.id)
+
+                return {
+                    ...note,
+                    tags: noteTags
+                }
+            })
+            response.json(userWithTags)
+
+        } catch {
+            throw new AppError("Não foi possivel visualizar as notas");
+        }
+
     }
 }
 

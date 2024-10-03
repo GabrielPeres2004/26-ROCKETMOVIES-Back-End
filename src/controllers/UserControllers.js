@@ -28,11 +28,18 @@ class UsersController {
 
         const hashedPassword = await hash(password, 8)
 
-        await database.run(
-            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-            [name, email, hashedPassword])
+        try {
 
-        return response.json()
+            await database.run(
+                "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+                [name, email, hashedPassword])
+
+            return response.json()
+
+        } catch {
+            throw new AppError("Não foi possivel criar a sua conta");
+        }
+
 
     }
 
@@ -77,18 +84,22 @@ class UsersController {
 
         }
 
-        await database.run(`
-            UPDATE users SET
-            name = ?,
-            email = ?,
-            password = ?,
-            updated_at = DATETIME('now')
-            WHERE id = ?`,
-            [user.name, user.email, user.password, user_id]
-        )
+        try {
+            await database.run(`
+                UPDATE users SET
+                name = ?,
+                email = ?,
+                password = ?,
+                updated_at = DATETIME('now')
+                WHERE id = ?`,
+                [user.name, user.email, user.password, user_id]
+            )
 
-        return response.json()
+            return response.json()
 
+        } catch {
+            throw new AppError("Não foi possivel atualizar as informações");
+        }
     }
 }
 
