@@ -22,7 +22,7 @@ function ensureAuthenticated(request, response, next) {
         return next()
 
     } catch {
-        throw new AppError("JWT token não é valido");
+        throw new AppError("Seu token JWT expirou. Por favor, faça login novamente ou recarregue a página para continuar.", 401);
     }
 }
 

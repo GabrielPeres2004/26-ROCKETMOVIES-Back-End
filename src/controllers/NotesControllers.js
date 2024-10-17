@@ -7,18 +7,6 @@ class NotesControllers {
         const { title, description, rating, tags } = request.body
         const user_id = request.user.id
 
-        if (!rating) {
-            throw new AppError("Por favor insira a nota");
-        }
-
-        if (rating > 5) {
-            throw new AppError("A nota deve ser no máximo 5.");
-        }
-
-        if (rating < 0) {
-            throw new AppError("A nota deve ser no mínimo 0");
-        }
-
         try {
 
             const [note_id] = await knex("notes").insert({
@@ -87,29 +75,11 @@ class NotesControllers {
         let notes
 
         try {
-            if (tags) {
-                const filterTags = tags.split(",").map(tag => tag.trim())
 
-                notes = await knex("tags")
-                    .select([
-                        "notes.id",
-                        "notes.title",
-                        "notes.user_id"
-                    ])
-                    .where("notes.user_id", user_id)
-                    .whereLike("notes.title", `%${title}%`)
-                    .whereIn("name", filterTags)
-                    .innerJoin("notes", "notes.id", "tags.note_id")
-                    .orderBy("notes.title")
-            }
-            else {
-
-                notes = await knex("notes")
-                    .where({ user_id })
-                    .whereLike("title", `%${title}%`)
-                    .orderBy('title')
-
-            }
+            notes = await knex("notes")
+                .where({ user_id })
+                .whereLike("title", `%${title}%`)
+                .orderBy('title')
 
             const userTags = await knex("tags").where({ user_id })
             const userWithTags = notes.map(note => {

@@ -84,22 +84,30 @@ class UsersController {
 
         }
 
-        try {
-            await database.run(`
+
+        await database.run(`
                 UPDATE users SET
                 name = ?,
                 email = ?,
                 password = ?,
                 updated_at = DATETIME('now')
                 WHERE id = ?`,
-                [user.name, user.email, user.password, user_id]
-            )
+            [user.name, user.email, user.password, user_id]
+        )
 
-            return response.json()
+        return response.json()
 
-        } catch {
-            throw new AppError("Não foi possivel atualizar as informações");
-        }
+    }
+
+    async index(request, response) {
+        const user_id = request.user.id
+        const database = await sqliteConnection()
+
+
+        const user = await database.get("SELECT * FROM users WHERE id = (?)", [user_id])
+
+        return response.json(user)
+
     }
 }
 
