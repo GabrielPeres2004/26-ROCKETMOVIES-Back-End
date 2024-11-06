@@ -34,7 +34,14 @@ class UsersController {
 
         const database = await sqliteConnection()
 
+        const emailValidation = (email) => {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        };
 
+        if (!emailValidation(email)) {
+            throw new AppError("Por favor, insira um e-mail válido.");
+        }
 
         const user = await database.get("SELECT * FROM users WHERE id = (?)", [user_id])
 
