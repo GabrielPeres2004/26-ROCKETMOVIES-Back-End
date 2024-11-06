@@ -6,8 +6,8 @@ exports.up = knex => knex.schema.createTable("notes", table => {
     table.integer("rating")
     table.integer("user_id").references("id").inTable("users")
 
-    table.timestamp("created_at").default(knex.fn.now())
-    table.timestamp("updated_at").default(knex.fn.now())
+    table.timestamp("created_at").defaultTo(knex.raw("(strftime('%d/%m/%Y %H:%M:%S', 'now', 'localtime'))"));
+    table.timestamp("updated_at").defaultTo(knex.raw("(strftime('%d/%m/%Y %H:%M:%S', 'now', 'localtime'))"));
 })
 
 

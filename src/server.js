@@ -8,10 +8,22 @@ const AppError = require("./utils/AppError")
 const migrationsRun = require('./database/sqlite/migrations')
 const uploadConfigs = require("./configs/upload")
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 
 app.use(express.json())
-app.use(cors())
+app.use(cookieParser())
+app.use(
+    cors({
+        origin: [
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "https://rocketmovies-full-stack.netlify.app/",
+        ],
+        credentials: true,
+    })
+)
+
 app.use('/files', express.static(uploadConfigs.UPLOAD_FOLDER))
 app.use(routes)
 
