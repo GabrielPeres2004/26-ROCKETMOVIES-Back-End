@@ -16,7 +16,7 @@ const upload = multer(uploadsConfigs.MULTER)
 
 userRoutes.post("/", usersController.create)
 userRoutes.put("/", ensureAuthenticated, usersController.update)
-userRoutes.get("/", ensureAuthenticated, usersController.index)
+userRoutes.get("/validated", ensureAuthenticated, usersController.index)
 userRoutes.patch("/avatar", ensureAuthenticated, upload.single('avatar'), userAvatarController.update)
 
 module.exports = userRoutes

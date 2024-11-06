@@ -30,8 +30,7 @@ class UserCreateServices {
         const hashedPassword = await hash(password, 8)
 
         try {
-            await this.userRepository.create({ name, email, password: hashedPassword })
-            return
+            return await this.userRepository.create({ name, email, password: hashedPassword })
         } catch {
             throw new AppError("Não foi possivel criar a sua conta");
         }

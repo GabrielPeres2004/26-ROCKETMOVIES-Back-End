@@ -78,10 +78,13 @@ class UsersController {
         const user_id = request.user.id
         const database = await sqliteConnection()
 
+        const checkUserExists = await database.get("SELECT * FROM users WHERE id = (?)", [user_id])
 
-        const user = await database.get("SELECT * FROM users WHERE id = (?)", [user_id])
+        if (checkUserExists.length > 0) {
+            throw new AppError("Unauthourized", 401);
+        }
 
-        return response.json(user)
+        return response.status(201).json();
 
     }
 }
