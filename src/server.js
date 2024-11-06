@@ -18,7 +18,7 @@ app.use(
         origin: [
             "http://localhost:5173",
             "http://127.0.0.1:5173",
-            "https://rocketmovies-full-stack.netlify.app/",
+            "https://rocketmovies-full-stack.netlify.app",
         ],
         credentials: true,
     })
