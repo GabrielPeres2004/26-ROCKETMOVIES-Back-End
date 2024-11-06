@@ -13,6 +13,15 @@ class UsersController {
 
         const userCreateServices = new UserCreateServices(userRepository)
 
+        const emailValidation = (email) => {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        };
+
+        if (!emailValidation(email)) {
+            throw new AppError("Por favor, insira um e-mail válido.");
+        }
+
         await userCreateServices.execute({ name, email, password })
 
         return response.json()
@@ -24,6 +33,8 @@ class UsersController {
         const user_id = request.user.id
 
         const database = await sqliteConnection()
+
+
 
         const user = await database.get("SELECT * FROM users WHERE id = (?)", [user_id])
 
