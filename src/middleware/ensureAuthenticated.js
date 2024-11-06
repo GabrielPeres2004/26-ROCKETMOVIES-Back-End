@@ -9,8 +9,8 @@ function ensureAuthenticated(request, response, next) {
         throw new AppError("JWT token não inserido")
     }
 
-    const [, token] = authHeader.cookie.split('token=')
 
+    const [, token] = authHeader.cookie.split('token=')
 
     try {
         const { sub: user_id } = verify(token, authConfigs.jwt.secret)
